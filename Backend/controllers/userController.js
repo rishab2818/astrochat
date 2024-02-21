@@ -1,15 +1,39 @@
-/*
+/*-----------------------------------------------------------------------
 Revision - 001
 Name: Rishab O
 Date: 21 Feb 2024
 Revision History:
   - Initial Version 
-*/
-
+------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------
+Revision - 002
+Name: Rishab O
+Date: 21 Feb 2024
+Revision History:
+  - Added Logging 
+------------------------------------------------------------------------*/
 // Import necessary models and Firebase Admin SDK
 const User = require('../models/User');
 const Message = require('../models/Message');
 const firebaseAdmin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
+
+// Create logs directory if not exists
+const logsDir = path.join(__dirname, '..', 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir);
+}
+
+// Create a write stream (appending) for the log file
+const logStream = fs.createWriteStream(path.join(logsDir, 'app.log'), { flags: 'a' });
+
+// Log function
+const log = (message, status = 200) => {
+  const logMessage = `${new Date().toISOString()} - Status: ${status} - ${message}\n`;
+  console.log(logMessage);
+  logStream.write(logMessage);
+};
 
 // Register User
 exports.registerUser = async (req, res) => {
@@ -26,8 +50,10 @@ exports.registerUser = async (req, res) => {
     // Send a success response
     res.status(201).send({ message: 'User registered successfully' });
   } catch (error) {
-    // Handle errors and send an error response
-    console.error(error);
+    // Log the error
+    log(`Error in user registration: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 201);
+
+    // Send an error response
     res.status(500).send({ error: 'Internal server error' });
   }
 };
@@ -49,8 +75,10 @@ exports.loginUser = async (req, res) => {
     // Send FCM token along with login response
     res.status(200).send({ message: 'Login successful', fcmToken: user.fcmToken });
   } catch (error) {
-    // Handle errors and send an error response
-    console.error(error);
+    // Log the error
+    log(`Error in user login: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 301);
+
+    // Send an error response
     res.status(500).send({ error: 'Internal server error' });
   }
 };
@@ -85,8 +113,10 @@ exports.sendMessage = async (req, res) => {
     // Send a success response
     res.status(201).send({ message: 'Message sent successfully' });
   } catch (error) {
-    // Handle errors and send an error response
-    console.error(error);
+    // Log the error
+    log(`Error in sending message: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 401);
+
+    // Send an error response
     res.status(500).send({ error: 'Internal server error' });
   }
 };
@@ -108,8 +138,10 @@ exports.getMessages = async (req, res) => {
     // Send retrieved messages as a response
     res.status(200).send(messages);
   } catch (error) {
-    // Handle errors and send an error response
-    console.error(error);
+    // Log the error
+    log(`Error in retrieving messages: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 501);
+
+    // Send an error response
     res.status(500).send({ error: 'Internal server error' });
   }
 };
