@@ -1,6 +1,13 @@
 **Testing Documentation for Chat App Backend**
 
-1. **User Registration**:
+1. **Running the App**:
+   - Ensure that Node.js and npm are installed on your system.
+   - Clone the repository containing the backend code for the chat application.
+   - Navigate to the project directory in your terminal.
+   - Install dependencies using the command: `npm install`.
+   - Start the backend server using: `npm start`.
+
+2. **User Registration**:
    - **URL**: `POST /register`
    - **Method**: POST
    - **Request JSON**:
@@ -10,7 +17,8 @@
        "userId": "johndoe123",
        "phoneNumber": "+1234567890",
        "email": "johndoe@example.com",
-       "password": "password123"
+       "password": "password123",
+       "fcmToken": "valid_FCM_token_here"
      }
      ```
    - **Expected Response**:
@@ -22,7 +30,7 @@
        }
        ```
 
-2. **User Login**:
+3. **User Login**:
    - **URL**: `POST /login`
    - **Method**: POST
    - **Request JSON**:
@@ -42,7 +50,7 @@
        }
        ```
 
-3. **Sending Message**:
+4. **Sending Message**:
    - **URL**: `POST /send-message`
    - **Method**: POST
    - **Request JSON**:
@@ -62,7 +70,7 @@
        }
        ```
 
-4. **Reading Messages**:
+5. **Reading Messages**:
    - **URL**: `GET /messages`
    - **Method**: GET
    - **Query Parameters**:
