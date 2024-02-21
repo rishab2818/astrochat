@@ -79,3 +79,22 @@
    - **Expected Response**:
      - Status: 200 OK
      - Content: Array of message objects
+
+
+
+### User List API
+
+- **URL**: `GET /userlist`
+- **Method**: GET
+- **Query Parameters**:
+  - `userId`: The ID of the user for which the user list is requested.
+- **Expected Response**:
+  - **Status**: 200 OK
+  - **Content**: Depending on the user's role:
+    - If the user is an admin, the response will include all user IDs.
+    - If the user is not an admin, the response will include only admin user IDs.
+
+
+
+
+http://localhost:3000/user-list?userId=yourUserId

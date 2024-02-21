@@ -12,6 +12,13 @@ Date: 21 Feb 2024
 Revision History:
   - Added Logging 
 ------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------
+Revision - 003
+Name: Rishab O
+Date: 21 Feb 2024
+Revision History:
+  - New API added to get list of all users
+------------------------------------------------------------------------*/
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -19,7 +26,7 @@ const firebaseAdmin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
 
-const { registerUser, loginUser, sendMessage, getMessages } = require('./controllers/userController');
+const { registerUser, loginUser, sendMessage, getMessages,getuserlist } = require('./controllers/userController');
 
 const app = express();
 
@@ -95,6 +102,14 @@ app.get('/messages', (req, res) => {
     getMessages(req, res);
   } catch (error) {
     log(`Error in retrieving messages: ${error.message}`, 500);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
+app.get('/userlist', (req, res) => {
+  try {
+    getuserlist(req, res);
+  } catch (error) {
+    log(`Error in retrieving messages: ${error.message}`, 600);
     res.status(500).send({ error: 'Internal server error' });
   }
 });

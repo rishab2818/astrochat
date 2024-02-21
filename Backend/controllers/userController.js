@@ -19,6 +19,13 @@ Date: 21 Feb 2024
 Revision History:
   - Code revised for login and register due to addition of isadmin field
 ------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------
+Revision - 004
+Name: Rishab O
+Date: 21 Feb 2024
+Revision History:
+  - New API added to get list of all users
+------------------------------------------------------------------------*/
 // Import necessary models and Firebase Admin SDK
 const User = require('../models/User');
 const Message = require('../models/Message');
@@ -149,7 +156,40 @@ exports.getMessages = async (req, res) => {
     res.status(200).send(messages);
   } catch (error) {
     // Log the error
-    log(`Error in retrieving messages: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 501);
+    log(`Error in retrieving messages: ${error.message} - Request query: ${JSON.stringify(req.query)}`, 501);
+
+    // Send an error response
+    res.status(500).send({ error: 'Internal server error' });
+  }
+};
+// API to get user list
+exports.getuserlist = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    // Find the user in the database based on user ID
+    const user = await User.findOne({ userId });
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    // Check if the user is an admin
+    if (user.isAdmin) {
+      // If the user is an admin, return all user IDs
+      const allUsers = await User.find({}, 'userId');
+      const userIds = allUsers.map(user => user.userId);
+      return res.status(200).send({ userIds });
+    } else {
+      // If the user is not an admin, return only admin user IDs
+      const adminUsers = await User.find({ isAdmin: true }, 'userId');
+      const adminUserIds = adminUsers.map(user => user.userId);
+      return res.status(200).send({ adminUserIds });
+    }
+  } catch (error) {
+    // Log the error
+    log(`Error in retrieving user list: ${error.message} - Request Body: ${JSON.stringify(req.query)}`, 601);
 
     // Send an error response
     res.status(500).send({ error: 'Internal server error' });
