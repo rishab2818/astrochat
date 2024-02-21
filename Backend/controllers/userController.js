@@ -1,16 +1,23 @@
-/*-----------------------------------------------------------------------
-Revision - 001
-Name: Rishab O
+/*
+Author: Rishab O
 Date: 21 Feb 2024
+Revision: 001
 Revision History:
-  - Initial Version 
-------------------------------------------------------------------------*/
+  - Initial Version  
+/*-----------------------------------------------------------------------
 /*-----------------------------------------------------------------------
 Revision - 002
 Name: Rishab O
 Date: 21 Feb 2024
 Revision History:
-  - Added Logging 
+  - Added Logging
+------------------------------------------------------------------------*/
+/*-----------------------------------------------------------------------
+Revision - 003
+Name: Rishab O
+Date: 21 Feb 2024
+Revision History:
+  - Code revised for login and register due to addition of isadmin field
 ------------------------------------------------------------------------*/
 // Import necessary models and Firebase Admin SDK
 const User = require('../models/User');
@@ -38,11 +45,11 @@ const log = (message, status = 200) => {
 // Register User
 exports.registerUser = async (req, res) => {
   try {
-    // Extract user details from request body
-    const { name, userId, phoneNumber, email, password, fcmToken } = req.body;
+    // Extract user details from request body 
+    const { name, userId, phoneNumber, email, password, fcmToken, isAdmin } = req.body;
 
-    // Create a new user instance
-    const newUser = new User({ name, userId, phoneNumber, email, password, fcmToken });
+    // Create a new user instance 
+    const newUser = new User({ name, userId, phoneNumber, email, password, fcmToken, isAdmin });
 
     // Save the user details to the database
     await newUser.save();
@@ -72,8 +79,11 @@ exports.loginUser = async (req, res) => {
       return res.status(404).send({ error: 'User not found' });
     }
 
-    // Send FCM token along with login response
-    res.status(200).send({ message: 'Login successful', fcmToken: user.fcmToken });
+    // Check if the user is an admin
+    const isAdmin = user.isAdmin || false;
+
+    // Send FCM token along with login response and isAdmin status
+    res.status(200).send({ message: 'Login successful', fcmToken: user.fcmToken, isAdmin });
   } catch (error) {
     // Log the error
     log(`Error in user login: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 301);
