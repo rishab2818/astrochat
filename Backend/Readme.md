@@ -18,7 +18,6 @@
        "phoneNumber": "+1234567890",
        "email": "johndoe@example.com",
        "password": "password123",
-       "fcmToken": "valid_FCM_token_here"
      }
      ```
    - **Expected Response**:
@@ -80,7 +79,25 @@
      - Status: 200 OK
      - Content: Array of message objects
 
+4. **Sending FCM Token**:
+   - **URL**: `POST /send-message`
+   - **Method**: POST
+   - **Request JSON**:
+     ```json
+     {
+       "userId": "johndoe123",
+       "fcmToken": "token",
 
+     }
+     ```
+   - **Expected Response**:
+     - Status: 201 Created
+     - Content:
+       ```json
+       {
+         "message": "FCM token updated successfully"
+       }
+       ```
 
 ### User List API
 
