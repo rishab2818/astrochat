@@ -54,9 +54,10 @@ exports.registerUser = async (req, res) => {
   try {
     // Extract user details from request body 
     const { name, userId, phoneNumber, email, password, isAdmin } = req.body;
-    console.log("request body",req.body)
+    console.log("request body", req.body);
+
     // Create a new user instance 
-    const newUser = new User({ name, userId, phoneNumber, email, password, isAdmin, fcmToken: null  });
+    const newUser = new User({ name, userId, phoneNumber, email, password, isAdmin, fcmToken: null });
 
     // Save the user details to the database
     await newUser.save();
@@ -64,13 +65,23 @@ exports.registerUser = async (req, res) => {
     // Send a success response
     res.status(201).send({ message: 'User registered successfully' });
   } catch (error) {
-    // Log the error
-    log(`Error in user registration: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 201);
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.userId === 1) {
+      // Log duplicate userId error
+      log(`Duplicate userId error: User with userId '${req.body.userId}' already exists`, 201);
 
-    // Send an error response
-    res.status(500).send({ error: 'Internal server error' });
+      // Send an error response indicating duplicate userId
+      res.status(400).send({ error: 'User with this userId already exists' });
+    } else {
+      // Log other errors
+      log(`Error in user registration: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 201);
+      
+      // Send an error response
+      res.status(500).send({ error: 'Internal server error' });
+    }
   }
 };
+
+
 
 // Login User
 exports.loginUser = async (req, res) => {
@@ -166,10 +177,11 @@ exports.getMessages = async (req, res) => {
 exports.getuserlist = async (req, res) => {
   try {
     const { userId } = req.query;
+    console.log("userID",userId)
 
     // Find the user in the database based on user ID
     const user = await User.findOne({ userId });
-
+    console.log("userID",user)
     // Check if the user exists
     if (!user) {
       return res.status(404).send({ error: 'User not found' });
