@@ -97,6 +97,7 @@ app.post('/send-message', (req, res) => {
   }
 });
 
+
 app.get('/messages', (req, res) => {
   try {
     getMessages(req, res);
@@ -113,7 +114,14 @@ app.get('/userlist', (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 });
-
+app.post('/updatefcm', (req, res) => {
+  try {
+    updateFCMToken(req, res);
+  } catch (error) {
+    log(`Error in sending message: ${error.message}`, 700);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

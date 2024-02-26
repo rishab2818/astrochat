@@ -53,10 +53,10 @@ const log = (message, status = 200) => {
 exports.registerUser = async (req, res) => {
   try {
     // Extract user details from request body 
-    const { name, userId, phoneNumber, email, password, fcmToken, isAdmin } = req.body;
+    const { name, userId, phoneNumber, email, password, isAdmin } = req.body;
 
     // Create a new user instance 
-    const newUser = new User({ name, userId, phoneNumber, email, password, fcmToken, isAdmin });
+    const newUser = new User({ name, userId, phoneNumber, email, password, isAdmin, fcmToken: null  });
 
     // Save the user details to the database
     await newUser.save();
@@ -90,7 +90,7 @@ exports.loginUser = async (req, res) => {
     const isAdmin = user.isAdmin || false;
 
     // Send FCM token along with login response and isAdmin status
-    res.status(200).send({ message: 'Login successful', fcmToken: user.fcmToken, isAdmin });
+    res.status(200).send({ message: 'Login successful', isAdmin });
   } catch (error) {
     // Log the error
     log(`Error in user login: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 301);
@@ -190,6 +190,34 @@ exports.getuserlist = async (req, res) => {
   } catch (error) {
     // Log the error
     log(`Error in retrieving user list: ${error.message} - Request Body: ${JSON.stringify(req.query)}`, 601);
+
+    // Send an error response
+    res.status(500).send({ error: 'Internal server error' });
+  }
+};
+
+exports.updateFCMToken = async (req, res) => {
+  try {
+    // Extract user ID and FCM token from request body
+    const { userId, fcmToken } = req.body;
+
+    // Find the user in the database based on user ID
+    const user = await User.findOne({ userId });
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    // Update the FCM token for the user
+    user.fcmToken = fcmToken;
+    await user.save();
+
+    // Send a success response
+    res.status(200).send({ message: 'FCM token updated successfully' });
+  } catch (error) {
+    // Log the error
+    console.error(`Error in updating FCM token: ${error.message}`);
 
     // Send an error response
     res.status(500).send({ error: 'Internal server error' });
