@@ -54,7 +54,7 @@ exports.registerUser = async (req, res) => {
   try {
     // Extract user details from request body 
     const { name, userId, phoneNumber, email, password, isAdmin } = req.body;
-
+    console.log("request body",req.body)
     // Create a new user instance 
     const newUser = new User({ name, userId, phoneNumber, email, password, isAdmin, fcmToken: null  });
 

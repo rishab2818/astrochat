@@ -79,8 +79,8 @@
      - Status: 200 OK
      - Content: Array of message objects
 
-4. **Sending FCM Token**:
-   - **URL**: `POST /send-message`
+6. **Sending FCM Token**:
+   - **URL**: `POST /updatefcm`
    - **Method**: POST
    - **Request JSON**:
      ```json
