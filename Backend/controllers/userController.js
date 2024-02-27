@@ -114,21 +114,37 @@ exports.loginUser = async (req, res) => {
 // Send Message
 exports.sendMessage = async (req, res) => {
   try {
-    // Extract sender ID, receiver ID, and message from request body
-    const { senderUserId, receiverUserId, message } = req.body;
+    // Extract sender ID, receiver ID, message, and timestamp from request body
+    const { senderUserId, receiverUserId, message, timestamp } = req.body;
 
-    // Create a new message instance
-    const newMessage = new Message({ senderUserId, receiverUserId, message });
+    // Parse the provided timestamp to ensure it's a valid Date object
+    // The client should send the timestamp in a format that the Date constructor can parse (e.g., ISO 8601 string)
+    const senderTimestamp = new Date(timestamp);
+
+    // Create a new message instance, including the sender-provided timestamp
+    const newMessage = new Message({
+      senderUserId,
+      receiverUserId,
+      message,
+      timestamp: senderTimestamp // Use the provided timestamp
+    });
 
     // Retrieve receiver's FCM token from the database
     const receiverUser = await User.findOne({ userId: receiverUserId });
+    if (!receiverUser) {
+      return res.status(404).send({ error: 'Receiver not found' });
+    }
     const receiverFcmToken = receiverUser.fcmToken;
 
     // Prepare notification payload for FCM
     const notificationPayload = {
       notification: {
-        title: `New Message: ${message}`,
-        body: `You have received a new message from ${senderUserId}`
+        title: `New Message from ${senderUserId}`,
+        body: message
+      },
+      data: {
+        senderId: senderUserId,
+        message: message,
       }
     };
 
@@ -137,18 +153,17 @@ exports.sendMessage = async (req, res) => {
 
     // Save the message in the database
     await newMessage.save();
-    console.log("sent")
+    console.log("Message sent");
 
     // Send a success response
     res.status(201).send({ message: 'Message sent successfully' });
   } catch (error) {
-    // Log the error
-    log(`Error in sending message: ${error.message} - Request Body: ${JSON.stringify(req.body)}`, 401);
-
-    // Send an error response
+    // Log the error and send an error response
+    console.error(`Error in sending message: ${error.message} - Request Body: ${JSON.stringify(req.body)}`);
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
 
 // Get Messages
 exports.getMessages = async (req, res) => {
@@ -161,7 +176,7 @@ exports.getMessages = async (req, res) => {
     console.log("page is",page)
     // Retrieve messages from the database based on sender and receiver IDs with pagination and sort them by creation time in descending order
     const messages = await Message.find({ senderUserId, receiverUserId })
-      .sort({ createdAt: -1 }) // Assuming 'createdAt' is your timestamp field. Adjust the field name as necessary.
+      .sort({ timestamp: -1 }) // Assuming 'createdAt' is your timestamp field. Adjust the field name as necessary.
       .skip(skipCount)
       .limit(parseInt(limit));
 

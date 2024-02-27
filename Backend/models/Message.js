@@ -9,10 +9,15 @@ const mongoose = require('mongoose');
 
 // Define the schema for the Message model
 const messageSchema = new mongoose.Schema({
-  senderUserId: String,       // ID of the user sending the message
-  receiverUserId: String,     // ID of the user receiving the message
-  message: String             // Content of the message
+  senderUserId: String,          // ID of the user sending the message
+  receiverUserId: String,        // ID of the user receiving the message
+  message: String,               // Content of the message
+  timestamp: {
+    type: Date,                  // Use Date type for the timestamp
+    default: Date.now            // Default to the current time if not specified
+  }
 });
+
 
 // Create a model from the schema
 const Message = mongoose.model('Message', messageSchema);
