@@ -137,6 +137,7 @@ exports.sendMessage = async (req, res) => {
 
     // Save the message in the database
     await newMessage.save();
+    console.log("sent")
 
     // Send a success response
     res.status(201).send({ message: 'Message sent successfully' });
@@ -153,13 +154,14 @@ exports.sendMessage = async (req, res) => {
 exports.getMessages = async (req, res) => {
   try {
     // Extract sender ID, receiver ID, page, and limit from query parameters
-    const { senderUserId, receiverUserId, page = 1, limit = 20 } = req.query;
+    const { senderUserId, receiverUserId, page = 1, limit = 10 } = req.query;
 
     // Calculate skip count based on page and limit
     const skipCount = (page - 1) * limit;
-
-    // Retrieve messages from the database based on sender and receiver IDs with pagination
+    console.log("page is",page)
+    // Retrieve messages from the database based on sender and receiver IDs with pagination and sort them by creation time in descending order
     const messages = await Message.find({ senderUserId, receiverUserId })
+      .sort({ createdAt: -1 }) // Assuming 'createdAt' is your timestamp field. Adjust the field name as necessary.
       .skip(skipCount)
       .limit(parseInt(limit));
 
@@ -173,6 +175,7 @@ exports.getMessages = async (req, res) => {
     res.status(500).send({ error: 'Internal server error' });
   }
 };
+
 // API to get user list
 exports.getuserlist = async (req, res) => {
   try {

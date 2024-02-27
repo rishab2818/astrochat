@@ -25,11 +25,11 @@ const bodyParser = require('body-parser');
 const firebaseAdmin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
-
+const serviceAccount = require('./servicekey.json')
 const { registerUser, loginUser, sendMessage, getMessages,getuserlist,updateFCMToken } = require('./controllers/userController');
 
 const app = express();
-
+console.log("entered")
 // Create logs directory if not exists
 const logsDir = path.join(__dirname, 'logs');
 if (!fs.existsSync(logsDir)) {
@@ -50,10 +50,15 @@ const log = (message, status = 200) => {
 app.use(bodyParser.json());
 
 // Firebase Admin SDK initialization
-const serviceAccount = require('/home/lattech-dev1/Desktop/chatfcm/servicekey.json');
-firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(serviceAccount)
-});
+try {
+  firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(serviceAccount)
+  });
+  console.log("Firebase Admin SDK initialized successfully.");
+} catch (error) {
+  console.error("Error initializing Firebase Admin SDK:", error);
+}
+
 
 // MongoDB Connection
 const db = mongoose.connection;
@@ -123,7 +128,7 @@ app.post('/updatefcm', (req, res) => {
   }
 });
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   log(`Server is running on port ${PORT}`);
 });
